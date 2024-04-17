@@ -46,7 +46,7 @@ peft_config = LoraConfig(
     inference_mode=False,
 )
 
-def get_base_model(base_model_name: str, tokenizer: AutoTokenizer, test: bool):
+def get_base_model(base_model_name: str, tokenizer: AutoTokenizer):
     base_model = AutoModelForCausalLM.from_pretrained(
         base_model_name,
         pad_token_id=tokenizer.pad_token_id,
