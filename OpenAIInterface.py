@@ -7,7 +7,6 @@ from tqdm import tqdm
 from omegaconf import OmegaConf
 import concurrent.futures
 
-
 def get_saved_cache(cache_filename: str):
     if os.path.exists(cache_filename):
         print(f"Loading {cache_filename}...")
