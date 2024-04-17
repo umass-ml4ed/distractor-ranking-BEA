@@ -7,7 +7,7 @@ from tqdm import tqdm
 from omegaconf import OmegaConf
 import concurrent.futures
 
-api_keys = [""]
+api_keys = [] # need to put api keys here
 
 def get_saved_cache(cache_filename: str):
     if os.path.exists(cache_filename):
