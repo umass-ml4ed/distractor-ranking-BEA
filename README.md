@@ -37,6 +37,7 @@ python zero_shot_prediction_complement_processing.py
 ```
 python train.py
 ```
+#### Generate Distractors
 ```
 python test.py
 python ft_prediction_processing.py
