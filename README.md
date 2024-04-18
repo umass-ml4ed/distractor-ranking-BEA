@@ -50,3 +50,8 @@ python ft_prediction_complement_processing.py
 ```
 python ranking.py --base_model mistralai/Mistral-7B-v0.1 --model_name xxx --batch_size 16
 ```
+
+## Citation
+If you used our code or found this work useful in any way, please cite us!
+```
+```
