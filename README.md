@@ -21,7 +21,7 @@ python3 -m pip install -r requirements.txt
 ```
 ```
 
-### Generate distractors (CoT)
+### Generate Distractors (CoT)
 ```
 python zero_shot_prompt_writer.py
 python prompting.py
@@ -32,7 +32,7 @@ python zero_shot_prediction_complement_processing.py
 ```
 
 
-### Generate distractors (FT)
+### Generate Distractors (FT)
 #### Train Mistral
 ```
 python train.py
@@ -43,4 +43,9 @@ python ft_prediction_processing.py
 python ft_complement_prompt_writer.py
 python test.py
 python ft_prediction_complement_processing.py
+```
+
+### Generate Rankings
+```
+python ranking.py --base_model mistralai/Mistral-7B-v0.1 --model_name xxx --batch_size 16
 ```
