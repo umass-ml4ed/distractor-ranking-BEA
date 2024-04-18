@@ -191,11 +191,6 @@ def get_pairwise_dataloader(data: pd.DataFrame, tokenizer: AutoTokenizer, shuffl
     collator = PairwiseCollator(tokenizer)
     return DataLoader(dataset, collate_fn=collator, batch_size=args.batch_size, shuffle=shuffle)
 
-def get_dis_grouped_dataloader(data: pd.DataFrame, tokenizer: AutoTokenizer, shuffle: bool, args):
-    dataset = DisGroupedDataset(data, args)
-    collator = DisGroupedCollator(tokenizer)
-    return DataLoader(dataset, collate_fn=collator, batch_size=args.batch_size, shuffle=shuffle)
-
 def get_pairwise_log_probs(model, batch):
     batch_size = len(batch["meta_data"])
     cel = torch.nn.CrossEntropyLoss(reduction="none")
@@ -205,16 +200,6 @@ def get_pairwise_log_probs(model, batch):
     log_probs = -cel(logits, labels)
     log_probs = log_probs.view(batch_size * 2, -1).sum(-1) # Take likelihood, mean would be -perplexity
     return log_probs[:batch_size], log_probs[batch_size:]
-
-def get_grouped_log_probs(model, batch):
-    batch_size = len(batch["meta_data"])
-    cel = torch.nn.CrossEntropyLoss(reduction="none")
-    labels = batch["labels"][:, 1:].contiguous().view(-1)
-    model_outputs = model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
-    logits = model_outputs.logits[:, :-1].contiguous().view(labels.shape[0], -1)
-    log_probs = -cel(logits, labels)
-    log_probs = log_probs.view(batch_size * 3, -1).sum(-1) # Take likelihood, mean would be -perplexity
-    return log_probs.view(batch_size, 3)
 
 def ft_loss(model, batch, _args):
     model_outputs = model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"], labels=batch["labels"])
