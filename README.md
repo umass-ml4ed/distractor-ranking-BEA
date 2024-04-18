@@ -24,8 +24,10 @@ python3 -m pip install -r requirements.txt
 ### Generate distractors (CoT)
 ```
 python zero_shot_prompt_writer.py
+python prompting.py
 python zero_shot_prediction_processing.py
 python zero_shot_complement_prompt_writer.py
+python prompting.py
 python zero_shot_prediction_complement_processing.py
 ```
 
@@ -36,5 +38,9 @@ python zero_shot_prediction_complement_processing.py
 python train.py
 ```
 ```
-
+python test.py
+python ft_prediction_processing.py
+python ft_complement_prompt_writer.py
+python test.py
+python ft_prediction_complement_processing.py
 ```
