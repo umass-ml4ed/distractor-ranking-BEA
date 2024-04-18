@@ -13,12 +13,21 @@ source fb_env/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
-### Train SFT Model
+### Ranking Model
+#### Train SFT Model
 ```
+python ranking_model_train.py --finetune --model_name disrank-sft
 ```
 
-### Train DPO Models
+#### Train DPO Model
 ```
+python ranking_model_train.py --dpo --model_name disrank-dpo --pt_model_name disrank-sft
+```
+
+#### Evaluate Ranking Accuracy
+```
+python ranking_model_train.py --ranking --model_name disrank-dpo
+python ranking_model_train.py --analyze_ranking --model_name disrank-dpo
 ```
 
 ### Generate Distractors (CoT)
@@ -30,7 +39,6 @@ python zero_shot_complement_prompt_writer.py
 python prompting.py
 python zero_shot_prediction_complement_processing.py
 ```
-
 
 ### Generate Distractors (FT)
 #### Train Mistral
