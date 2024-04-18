@@ -11,4 +11,11 @@ For any questions please [email](mailto:wanyongfeng@umass.edu) or raise an issue
 python3 -m venv fb_env
 source fb_env/bin/activate
 python3 -m pip install -r requirements.txt
+```
 
+### Train SFT Model
+
+### Train DPO Models
+
+### Generate distractors (zero-shot)
+```
