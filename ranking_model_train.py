@@ -386,6 +386,7 @@ def generate_samples(model, batch, tokenizer, args):
 def generate(args, fold: int = 0):
     assert args.model_name
     model, tokenizer = get_model(args.base_model, args.model_name, None, True)
+    model.eval()
     tokenizer.padding_side = "left"
     _, _, test_data = get_data(fold)
     test_dataloader = get_standard_dataloader(test_data, tokenizer, True, False, args)
@@ -422,7 +423,7 @@ def generate(args, fold: int = 0):
     prop = 100 * total_matched / (len(test_data) * 3)
     partial = 100 * total_partial / len(test_data)
     exact = 100 * total_exact / len(test_data)
-    with open(f"distractors/disgen_results_{args.model_name}_{args.decoding}_n{args.num_samples}.json", "w", encoding="utf-8") as f:
+    with open(f"results/disgen_results_{args.model_name}_{args.decoding}_n{args.num_samples}.json", "w", encoding="utf-8") as f:
         json.dump({
             "proportional": prop,
             "partial": partial,
@@ -435,6 +436,7 @@ def generate(args, fold: int = 0):
 def ranking(args, fold: int = 0):
     assert args.model_name
     model, tokenizer = get_model(args.base_model, args.model_name, None, True)
+    model.eval()
     _, _, test_data = get_data(fold)
     test_dataloader = get_pairwise_dataloader(test_data, tokenizer, False, args)
 
@@ -467,7 +469,7 @@ def ranking(args, fold: int = 0):
 
     accuracy = 100 * total_correct / total_pairs
     avg_mse = total_mse / total_pairs
-    with open(f"distractors/ranking_results_{args.model_name}.json", "w", encoding="utf-8") as f:
+    with open(f"results/ranking_results_{args.model_name}.json", "w", encoding="utf-8") as f:
         json.dump({
             "accuracy": accuracy,
             "mse": avg_mse,
@@ -475,6 +477,20 @@ def ranking(args, fold: int = 0):
         }, f, indent=2, ensure_ascii=False)
     print(f"Accuracy: {accuracy:.2f}, MSE: {avg_mse:.4f}")
     return accuracy, avg_mse
+
+def analyze_ranking(args):
+    with open(f"results/ranking_results_{args.model_name}.json") as f:
+        results = json.load(f)["results"]
+    cutoff_to_total = {cutoff: 0 for cutoff in [0, 3, 5, 10, 15, 20]}
+    cutoff_to_correct = cutoff_to_total.copy()
+    for result in results:
+        for cutoff in cutoff_to_total:
+            if abs(result["proportions"][0] - result["proportions"][1]) >= cutoff:
+                cutoff_to_total[cutoff] += 1
+                if result["correct"]:
+                    cutoff_to_correct[cutoff] += 1
+    for cutoff, total in cutoff_to_total.items():
+        print(f"{cutoff} - Correct: {100 * cutoff_to_correct[cutoff] / total:.2f}%, Portion: {100 * total / len(results):.2f}%")
 
 def crossval(args):
     assert args.finetune or args.dpo
@@ -507,6 +523,7 @@ def main():
     parser.add_argument("--dpo", action="store_true", help="DPO training (with student preferences) for distractor generation")
     parser.add_argument("--generate", action="store_true", help="Generate distractors for test set")
     parser.add_argument("--ranking", action="store_true", help="Evaluate pairwise ranking performance on test set")
+    parser.add_argument("--analyze_ranking", action="store_true", help="Compute additional statistics on ranking results")
     parser.add_argument("--crossval", action="store_true", help="Cross-validation experiment; includes training (specify finetune or dpo) followed by generate and ranking")
     # Settings
     parser.add_argument("--gen_feedback", action="store_true", help="Use feedback as chain of thought for distractor generation")
@@ -519,8 +536,8 @@ def main():
     parser.add_argument("--decoding", type=str, choices=["beam", "sample"], default="beam", help="Decoding strategy for generation")
     parser.add_argument("--num_samples", type=int, default=3, help="Number of distractors to sample per question during generation")
     parser.add_argument("--max_gen_tokens", type=int, default=256)
-    parser.add_argument("--batch_size", type=int, default=16)
-    parser.add_argument("--grad_accum_steps", type=int, default=4)
+    parser.add_argument("--batch_size", type=int, default=8)
+    parser.add_argument("--grad_accum_steps", type=int, default=8)
     parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--lr", type=float, default=3e-5, help="Learning rate")
     parser.add_argument("--wd", type=float, default=0.0, help="Weight decay")
@@ -537,6 +554,8 @@ def main():
         generate(args)
     elif args.ranking:
         ranking(args)
+    elif args.analyze_ranking:
+        analyze_ranking(args)
 
 if __name__ == "__main__":
     main()

@@ -8,8 +8,8 @@ For any questions please [email](mailto:wanyongfeng@umass.edu) or raise an issue
 
 ### Setup
 ```
-python3 -m venv fb_env
-source fb_env/bin/activate
+python3 -m venv disrank_env
+source disrank_env/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
