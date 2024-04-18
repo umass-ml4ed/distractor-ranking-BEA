@@ -14,8 +14,27 @@ python3 -m pip install -r requirements.txt
 ```
 
 ### Train SFT Model
+```
+```
 
 ### Train DPO Models
+```
+```
 
-### Generate distractors (zero-shot)
+### Generate distractors (CoT)
+```
+python zero_shot_prompt_writer.py
+python zero_shot_prediction_processing.py
+python zero_shot_complement_prompt_writer.py
+python zero_shot_prediction_complement_processing.py
+```
+
+
+### Generate distractors (FT)
+#### Train Mistral
+```
+python train.py
+```
+```
+
 ```
