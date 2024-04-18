@@ -232,51 +232,7 @@ def dpo_loss(model, batch, args):
     )
     return bcel(first_wins_logits, batch["first_win_probs"])
 
-def dpo_multi_loss(model, batch, args):
-    cel = torch.nn.CrossEntropyLoss()
-    grouped_log_probs = get_grouped_log_probs(model, batch)
-    with torch.no_grad():
-        with ref_model_ctm(model):
-            pt_grouped_log_probs = get_grouped_log_probs(model, batch)
-    class_logits = args.beta * (grouped_log_probs - pt_grouped_log_probs)
-    class_targets = batch["proportions"] / batch["proportions"].sum(-1, keepdim=True)
-    return cel(class_logits, class_targets)
-
-def dpo_sum_loss(model, batch, args):
-    bcel = torch.nn.BCEWithLogitsLoss(reduction="none")
-    grouped_log_probs = get_grouped_log_probs(model, batch)
-    with torch.no_grad():
-        with ref_model_ctm(model):
-            pt_grouped_log_probs = get_grouped_log_probs(model, batch)
-    log_ratios = grouped_log_probs - pt_grouped_log_probs
-    all_log_ratio_diffs = torch.stack([
-        log_ratios[:, i] - log_ratios[:, j] for i, j in permutations(range(3), 2)
-    ], dim=1)
-    dpo_losses = bcel(
-        args.beta * all_log_ratio_diffs.view(-1),
-        torch.ones_like(all_log_ratio_diffs).view(-1).to(device))
-    class_targets = batch["proportions"] / batch["proportions"].sum(-1, keepdim=True)
-    loss_weights = torch.stack([class_targets[:, i] for i, _ in permutations(range(3), 2)], dim=1)
-    return torch.dot(dpo_losses, loss_weights.view(-1))
-
-def dpo_pl_loss(model, batch, args):
-    cel = torch.nn.CrossEntropyLoss()
-    grouped_log_probs = get_grouped_log_probs(model, batch)
-    with torch.no_grad():
-        with ref_model_ctm(model):
-            pt_grouped_log_probs = get_grouped_log_probs(model, batch)
-    class_logits = args.beta * (grouped_log_probs - pt_grouped_log_probs)
-    rankings = torch.argsort(batch["proportions"], descending=True, dim=-1)
-    ordered_logits = class_logits[
-        torch.arange(len(batch["meta_data"])).unsqueeze(1), rankings]
-    losses = torch.stack([
-        cel(ordered_logits[:, i:], torch.zeros((len(batch["meta_data"]),), dtype=torch.long).to(device))
-        for i in range(class_logits.shape[1] - 1)
-    ])
-    return losses.sum()
-
 def train(train_dataloader: DataLoader, val_dataloader: DataLoader, model: AutoModelForCausalLM, loss_fn, args):
-    # TODO: implement LR schedule
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd)
     best_val_loss = None
     for epoch in range(args.epochs):
@@ -320,20 +276,9 @@ def dpo(args, fold: int = 0):
     assert args.pt_model_name
     model, tokenizer = get_model(args.base_model, None, args.pt_model_name, False)
     train_data, val_data, _ = get_data(fold)
-    if args.dpo_loss == "pairs":
-        train_dataloader = get_pairwise_dataloader(train_data, tokenizer, True, args)
-        val_dataloader = get_pairwise_dataloader(val_data, tokenizer, False, args)
-        loss_fn = dpo_loss
-    else:
-        train_dataloader = get_dis_grouped_dataloader(train_data, tokenizer, True, args)
-        val_dataloader = get_dis_grouped_dataloader(val_data, tokenizer, False, args)
-        if args.dpo_loss == "multi":
-            loss_fn = dpo_multi_loss
-        elif args.dpo_loss == "sum":
-            loss_fn = dpo_sum_loss
-        elif args.dpo_loss == "pl":
-            loss_fn = dpo_pl_loss
-    train(train_dataloader, val_dataloader, model, loss_fn, args)
+    train_dataloader = get_pairwise_dataloader(train_data, tokenizer, True, args)
+    val_dataloader = get_pairwise_dataloader(val_data, tokenizer, False, args)
+    train(train_dataloader, val_dataloader, model, dpo_loss, args)
 
 def generate_beams(model, batch, tokenizer, args):
     batch_gen_dis = [set() for _ in range(len(batch["meta_data"]))]
@@ -531,7 +476,6 @@ def main():
     parser.add_argument("--model_name", type=str, help="Name of model to save for training or load for testing")
     parser.add_argument("--pt_model_name", type=str, help="Name of pre-trained (SFT) model for DPO training")
     parser.add_argument("--beta", type=float, default=0.5, help="KL regularization coefficient for DPO training")
-    parser.add_argument("--dpo_loss", type=str, choices=["pairs", "sum", "multi", "pl"], default="pairs", help="Version of DPO loss function to use")
     parser.add_argument("--temp", type=float, default=0.0, help="Temperature for preference probability sharpness")
     parser.add_argument("--decoding", type=str, choices=["beam", "sample"], default="beam", help="Decoding strategy for generation")
     parser.add_argument("--num_samples", type=int, default=3, help="Number of distractors to sample per question during generation")
