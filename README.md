@@ -1,4 +1,4 @@
-# [Improving Automated Distractor Generation for Math Multiple-choice Questions with Overgenerate-and-rank]()
+# [Improving Automated Distractor Generation for Math Multiple-choice Questions with Overgenerate-and-rank](https://arxiv.org/abs/2405.05144)
 
 In this repository, we present the code to our paper "Improving Automated Distractor Generation for Math Multiple-choice Questions with Overgenerate-and-rank" by Alexander Scarlatos, Wanyong Feng, Digory Smith, Simon Woodhead, and Andrew Lan. In this work, we propose a novel method to enhance the quality of generated distractors through overgenerate-and-rank, training a ranking model to predict how likely distractors are to be selected by real students. The paper is accepted as the short paper of BEA workshop, NAACL 2024.
 
@@ -62,4 +62,12 @@ python ranking.py --base_model mistralai/Mistral-7B-v0.1 --model_name xxx --batc
 ## Citation
 If you used our code or found this work useful in any way, please cite us!
 ```
+@misc{scarlatos2024improving,
+      title={Improving Automated Distractor Generation for Math Multiple-choice Questions with Overgenerate-and-rank}, 
+      author={Alexander Scarlatos and Wanyong Feng and Digory Smith and Simon Woodhead and Andrew Lan},
+      year={2024},
+      eprint={2405.05144},
+      archivePrefix={arXiv},
+      primaryClass={cs.CY}
+}
 ```
