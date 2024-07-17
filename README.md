@@ -1,6 +1,6 @@
-# [Improving Automated Distractor Generation for Math Multiple-choice Questions with Overgenerate-and-rank](https://arxiv.org/abs/2405.05144)
+# [Improving Automated Distractor Generation for Math Multiple-choice Questions with Overgenerate-and-rank](https://aclanthology.org/2024.bea-1.19/)
 
-In this repository, we present the code to our paper "Improving Automated Distractor Generation for Math Multiple-choice Questions with Overgenerate-and-rank" by Alexander Scarlatos, Wanyong Feng, Digory Smith, Simon Woodhead, and Andrew Lan. In this work, we propose a novel method to enhance the quality of generated distractors through overgenerate-and-rank, training a ranking model to predict how likely distractors are to be selected by real students. The paper is accepted as the short paper of BEA workshop, NAACL 2024.
+In this repository, we present the code to our paper "Improving Automated Distractor Generation for Math Multiple-choice Questions with Overgenerate-and-rank" by Alexander Scarlatos, Wanyong Feng, Digory Smith, Simon Woodhead, and Andrew Lan. In this work, we propose a novel method to enhance the quality of generated distractors through overgenerate-and-rank, training a ranking model to predict how likely distractors are to be selected by real students. The paper is accepted as a short paper of the BEA workshop at NAACL 2024.
 
 For any questions please [email](mailto:wanyongfeng@umass.edu) or raise an issue.
 
@@ -62,12 +62,27 @@ python ranking.py --base_model mistralai/Mistral-7B-v0.1 --model_name xxx --batc
 ## Citation
 If you used our code or found this work useful in any way, please cite us!
 ```
-@misc{scarlatos2024improving,
-      title={Improving Automated Distractor Generation for Math Multiple-choice Questions with Overgenerate-and-rank}, 
-      author={Alexander Scarlatos and Wanyong Feng and Digory Smith and Simon Woodhead and Andrew Lan},
-      year={2024},
-      eprint={2405.05144},
-      archivePrefix={arXiv},
-      primaryClass={cs.CY}
+@inproceedings{scarlatos-etal-2024-improving,
+    title = "Improving Automated Distractor Generation for Math Multiple-choice Questions with Overgenerate-and-rank",
+    author = "Scarlatos, Alexander  and
+      Feng, Wanyong  and
+      Lan, Andrew  and
+      Woodhead, Simon  and
+      Smith, Digory",
+    editor = {Kochmar, Ekaterina  and
+      Bexte, Marie  and
+      Burstein, Jill  and
+      Horbach, Andrea  and
+      Laarmann-Quante, Ronja  and
+      Tack, Ana{\"\i}s  and
+      Yaneva, Victoria  and
+      Yuan, Zheng},
+    booktitle = "Proceedings of the 19th Workshop on Innovative Use of NLP for Building Educational Applications (BEA 2024)",
+    month = jun,
+    year = "2024",
+    address = "Mexico City, Mexico",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.bea-1.19",
+    pages = "222--231",
 }
 ```
